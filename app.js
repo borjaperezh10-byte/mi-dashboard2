@@ -26,28 +26,28 @@ updateClock();
 
 // --- ICONOS DEL TIEMPO ---
 function weatherIcon(code) {
-  if (code === 0)            return '☀️';
-  if (code <= 2)             return '🌤️';
-  if (code === 3)            return '☁️';
-  if ([45,48].includes(code))return '🌫️';
-  if (code <= 57)            return '🌦️';
-  if (code <= 67)            return '🌧️';
-  if (code <= 77)            return '❄️';
-  if (code <= 82)            return '🌦️';
-  if (code <= 99)            return '⛈️';
+  if (code === 0)             return '☀️';
+  if (code <= 2)              return '🌤️';
+  if (code === 3)             return '☁️';
+  if ([45,48].includes(code)) return '🌫️';
+  if (code <= 57)             return '🌦️';
+  if (code <= 67)             return '🌧️';
+  if (code <= 77)             return '❄️';
+  if (code <= 82)             return '🌦️';
+  if (code <= 99)             return '⛈️';
   return '🌡️';
 }
 
 function weatherDesc(code) {
-  if (code === 0)            return 'Despejado';
-  if (code <= 2)             return 'Parcialmente nublado';
-  if (code === 3)            return 'Nublado';
-  if ([45,48].includes(code))return 'Niebla';
-  if (code <= 57)            return 'Llovizna';
-  if (code <= 67)            return 'Lluvia';
-  if (code <= 77)            return 'Nieve';
-  if (code <= 82)            return 'Chubascos';
-  if (code <= 99)            return 'Tormenta';
+  if (code === 0)             return 'Despejado';
+  if (code <= 2)              return 'Parcialmente nublado';
+  if (code === 3)             return 'Nublado';
+  if ([45,48].includes(code)) return 'Niebla';
+  if (code <= 57)             return 'Llovizna';
+  if (code <= 67)             return 'Lluvia';
+  if (code <= 77)             return 'Nieve';
+  if (code <= 82)             return 'Chubascos';
+  if (code <= 99)             return 'Tormenta';
   return '–';
 }
 
@@ -70,8 +70,8 @@ async function loadWeather() {
     document.getElementById('w-desc').textContent = weatherDesc(cur.weathercode);
 
     // Por horas (próximas 24h desde ahora)
-    const nowH    = new Date().getHours();
-    const hourEl  = document.getElementById('hourly');
+    const nowH   = new Date().getHours();
+    const hourEl = document.getElementById('hourly');
     hourEl.innerHTML = '';
     for (let i = nowH; i < nowH + 24 && i < data.hourly.time.length; i++) {
       const t    = new Date(data.hourly.time[i]);
@@ -107,6 +107,12 @@ async function loadWeather() {
   }
 }
 
+// --- FUNCIÓN AUXILIAR: semana empieza en lunes (estilo europeo) ---
+function diaSemanaLunes(fecha) {
+  const d = fecha.getDay();
+  return d === 0 ? 6 : d - 1;
+}
+
 // --- GOOGLE CALENDAR ---
 async function loadCalendar() {
   if (!GOOGLE_API_KEY || GOOGLE_API_KEY === 'AQUI_TU_CLAVE_GOOGLE') {
@@ -139,12 +145,12 @@ async function loadCalendar() {
     const year  = now.getFullYear();
     const month = now.getMonth();
     const today = now.getDate();
-    const firstDay = new Date(year, month, 1).getDay(); // 0=dom
+    const firstDay    = diaSemanaLunes(new Date(year, month, 1));
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const calEl = document.getElementById('calendar');
     calEl.innerHTML = '';
 
-    // Cabeceras
+    // Cabeceras (lunes primero)
     ['lun','mar','mié','jue','vie','sáb','dom'].forEach(d => {
       const h = document.createElement('div');
       h.className = 'cal-header';
@@ -152,14 +158,14 @@ async function loadCalendar() {
       calEl.appendChild(h);
     });
 
-    // Ajuste: en España la semana empieza en lunes (1), no domingo (0)
-    let startPad = firstDay === 0 ? 6 : firstDay - 1;
-    for (let i = 0; i < startPad; i++) {
+    // Celdas vacías hasta el primer día del mes
+    for (let i = 0; i < firstDay; i++) {
       const e = document.createElement('div');
       e.className = 'cal-day empty';
       calEl.appendChild(e);
     }
 
+    // Días del mes
     for (let d = 1; d <= daysInMonth; d++) {
       const dayStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const cell   = document.createElement('div');
@@ -184,5 +190,5 @@ async function loadCalendar() {
 // --- INICIAR ---
 loadWeather();
 loadCalendar();
-setInterval(loadWeather, 15 * 60 * 1000);  // actualiza clima cada 15 min
-setInterval(loadCalendar, 30 * 60 * 1000); // actualiza calendar cada 30 min
+setInterval(loadWeather, 15 * 60 * 1000);   // actualiza clima cada 15 min
+setInterval(loadCalendar, 30 * 60 * 1000);  // actualiza calendar cada 30 min
