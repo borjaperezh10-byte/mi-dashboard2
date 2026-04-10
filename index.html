@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+  <title>Dashboard Casa</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- CABECERA: hora, fecha, clima actual -->
+    <header class="top-bar">
+      <div class="datetime">
+        <div id="clock" class="clock">--:--</div>
+        <div id="date" class="date">-- de --, ----</div>
+      </div>
+      <div class="current-weather" id="current-weather">
+        <span id="w-icon" class="w-icon">⏳</span>
+        <span id="w-temp" class="w-temp">--°</span>
+        <span id="w-desc" class="w-desc">Cargando...</span>
+      </div>
+    </header>
+
+    <!-- CLIMA POR HORAS (hoy) -->
+    <section class="section">
+      <h2 class="section-title">Hoy por horas</h2>
+      <div id="hourly" class="hourly-row">
+        <div class="loading">Cargando clima...</div>
+      </div>
+    </section>
+
+    <!-- PRÓXIMOS 7 DÍAS -->
+    <section class="section">
+      <h2 class="section-title">Próximos 7 días</h2>
+      <div id="weekly" class="weekly-row">
+        <div class="loading">Cargando...</div>
+      </div>
+    </section>
+
+    <!-- EVENTOS DE GOOGLE CALENDAR -->
+    <section class="section">
+      <h2 class="section-title">Este mes</h2>
+      <div id="calendar" class="calendar-grid">
+        <div class="loading">Cargando eventos...</div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
