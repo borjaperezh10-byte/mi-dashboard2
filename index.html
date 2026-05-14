@@ -11,7 +11,6 @@
 <body>
   <div class="container">
 
-    <!-- CABECERA: hora, fecha, clima actual -->
     <header class="top-bar">
       <div class="datetime">
         <div id="clock" class="clock">--:--</div>
@@ -24,7 +23,6 @@
       </div>
     </header>
 
-    <!-- CLIMA POR HORAS (hoy) -->
     <section class="section">
       <h2 class="section-title">Hoy por horas</h2>
       <div id="hourly" class="hourly-row">
@@ -32,7 +30,6 @@
       </div>
     </section>
 
-    <!-- PRÓXIMOS 7 DÍAS -->
     <section class="section">
       <h2 class="section-title">Próximos 7 días</h2>
       <div id="weekly" class="weekly-row">
@@ -40,16 +37,20 @@
       </div>
     </section>
 
-    <!-- EVENTOS DE GOOGLE CALENDAR -->
     <section class="section">
-      <h2 class="section-title">Este mes</h2>
-      <div id="calendar" class="calendar-grid">
-        <div class="loading">Cargando eventos...</div>
+      <div class="cal-nav">
+        <button class="cal-btn" onclick="changeMonth(-1)">&#8592;</button>
+        <h2 id="cal-month-label" class="cal-month-label">Este mes</h2>
+        <button class="cal-btn" onclick="changeMonth(1)">&#8594;</button>
+      </div>
+      <div id="calendar-wrapper">
+        <div id="calendar" class="calendar-grid">
+          <div class="loading">Cargando eventos...</div>
+        </div>
       </div>
     </section>
 
   </div>
-
   <script src="app.js"></script>
 </body>
 </html>
