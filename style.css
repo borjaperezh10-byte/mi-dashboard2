@@ -99,6 +99,45 @@ body {
 .day-card .d-max { font-size: 17px; font-weight: 500; color: #1a1a1a; }
 .day-card .d-min { font-size: 13px; color: #999; margin-top: 2px; }
 
+/* NAVEGACIÓN CALENDARIO */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cal-month-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  flex: 1;
+}
+
+.cal-btn {
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cal-btn:active { background: #f0f0f0; }
+
+#calendar-wrapper {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* CALENDARIO */
 .calendar-grid {
   display: grid;
