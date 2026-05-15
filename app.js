@@ -6,6 +6,34 @@ const GOOGLE_CAL_ID  = "borjaperezh@gmail.com";
 const LAT = 40.4481;
 const LON = -3.8138;
 
+// Colores de Google Calendar → CSS
+const GCOLOR_MAP = {
+  '1':  '#a4bdfc', // Lavanda
+  '2':  '#7ae28c', // Salvia
+  '3':  '#dbadff', // Uva
+  '4':  '#ff887c', // Flamingo
+  '5':  '#fbd75b', // Plátano
+  '6':  '#ffb878', // Mandarina
+  '7':  '#46d6db', // Pavo real
+  '8':  '#e1e1e1', // Grafito
+  '9':  '#5484ed', // Arándano
+  '10': '#51b749', // Albahaca
+  '11': '#dc2127', // Tomate
+};
+
+// Color por defecto si el evento no tiene colorId
+const DEFAULT_COLOR = '#4285f4';
+
+function getEventColor(ev) {
+  if (ev.colorId && GCOLOR_MAP[ev.colorId]) return GCOLOR_MAP[ev.colorId];
+  return DEFAULT_COLOR;
+}
+
+function colorToLight(hex) {
+  // Convierte el color sólido a una versión muy suave para el fondo
+  return hex + '22';
+}
+
 // --- RELOJ Y FECHA ---
 function updateClock() {
   const now = new Date();
@@ -16,10 +44,9 @@ function updateClock() {
   const days   = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
   const months = ['enero','febrero','marzo','abril','mayo','junio',
                   'julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  const now2 = new Date();
   document.getElementById('date').textContent =
-    days[now2.getDay()] + ', ' + now2.getDate() + ' de ' +
-    months[now2.getMonth()] + ' de ' + now2.getFullYear();
+    days[now.getDay()] + ', ' + now.getDate() + ' de ' +
+    months[now.getMonth()] + ' de ' + now.getFullYear();
 }
 
 setInterval(updateClock, 1000);
@@ -53,22 +80,26 @@ function weatherDesc(code) {
 }
 
 // --- CLIMA ---
+var allWeekData = [];
+
 async function loadWeather() {
   try {
     const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + LAT + '&longitude=' + LON +
       '&current=temperature_2m,weathercode' +
       '&hourly=temperature_2m,weathercode,precipitation_probability' +
-      '&daily=temperature_2m_max,temperature_2m_min,weathercode' +
-      '&timezone=Europe%2FMadrid&forecast_days=7';
+      '&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max' +
+      '&timezone=Europe%2FMadrid&forecast_days=14';
 
     const res  = await fetch(url);
     const data = await res.json();
 
+    // Clima actual
     const cur = data.current;
     document.getElementById('w-icon').textContent = weatherIcon(cur.weathercode);
     document.getElementById('w-temp').textContent = Math.round(cur.temperature_2m) + '°';
     document.getElementById('w-desc').textContent = weatherDesc(cur.weathercode);
 
+    // Horas
     const nowH   = new Date().getHours();
     const hourEl = document.getElementById('hourly');
     hourEl.innerHTML = '';
@@ -85,24 +116,57 @@ async function loadWeather() {
       hourEl.appendChild(card);
     }
 
-    const dayNames = ['dom','lun','mar','mié','jue','vie','sáb'];
-    const weekEl   = document.getElementById('weekly');
-    weekEl.innerHTML = '';
-    data.daily.time.forEach(function(dateStr, i) {
-      const d    = new Date(dateStr + 'T12:00:00');
-      const card = document.createElement('div');
-      card.className = 'day-card';
-      card.innerHTML =
-        '<div class="d-name">' + (i === 0 ? 'Hoy' : dayNames[d.getDay()]) + '</div>' +
-        '<div class="d-icon">' + weatherIcon(data.daily.weathercode[i]) + '</div>' +
-        '<div class="d-max">' + Math.round(data.daily.temperature_2m_max[i]) + '°</div>' +
-        '<div class="d-min">' + Math.round(data.daily.temperature_2m_min[i]) + '°</div>';
-      weekEl.appendChild(card);
-    });
+    // Guardar datos semanales y renderizar semana actual
+    allWeekData = data.daily;
+    currentWeekStart = 0;
+    renderWeek();
 
   } catch(e) {
     console.error('Error clima:', e);
   }
+}
+
+// --- SEMANA CON SWIPE ---
+var currentWeekStart = 0;
+
+function renderWeek() {
+  const dayNames = ['dom','lun','mar','mié','jue','vie','sáb'];
+  const weekEl   = document.getElementById('weekly');
+  weekEl.innerHTML = '';
+
+  const end = Math.min(currentWeekStart + 7, allWeekData.time.length);
+  for (let i = currentWeekStart; i < end; i++) {
+    const d    = new Date(allWeekData.time[i] + 'T12:00:00');
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    card.innerHTML =
+      '<div class="d-name">' + (i === 0 ? 'Hoy' : dayNames[d.getDay()]) + '</div>' +
+      '<div class="d-icon">' + weatherIcon(allWeekData.weathercode[i]) + '</div>' +
+      '<div class="d-max">' + Math.round(allWeekData.temperature_2m_max[i]) + '°</div>' +
+      '<div class="d-min">' + Math.round(allWeekData.temperature_2m_min[i]) + '°</div>' +
+      '<div class="d-rain">' + (allWeekData.precipitation_probability_max[i] || 0) + '%</div>';
+    weekEl.appendChild(card);
+  }
+}
+
+function initWeekSwipe() {
+  const wrapper = document.getElementById('weekly-wrapper');
+  let startX = 0;
+  wrapper.addEventListener('touchstart', function(e) {
+    startX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  wrapper.addEventListener('touchend', function(e) {
+    const diff = startX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && currentWeekStart + 7 < allWeekData.time.length) {
+        currentWeekStart += 7;
+        renderWeek();
+      } else if (diff < 0 && currentWeekStart > 0) {
+        currentWeekStart -= 7;
+        renderWeek();
+      }
+    }
+  }, { passive: true });
 }
 
 // --- CALENDARIO CON SWIPE ---
@@ -141,17 +205,26 @@ function renderCalendar(year, month) {
   }
 
   for (let d = 1; d <= daysInMonth; d++) {
-    const dayStr = year + '-' + String(month + 1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    const cell   = document.createElement('div');
+    const dayStr  = year + '-' + String(month + 1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const cell    = document.createElement('div');
     const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
     cell.className = 'cal-day' + (isToday ? ' today' : '');
     cell.innerHTML = '<div class="cal-num">' + d + '</div>';
-    (allEvents[dayStr] || []).slice(0, 2).forEach(function(name) {
-      const ev = document.createElement('div');
-      ev.className = 'cal-event';
-      ev.textContent = name;
-      cell.appendChild(ev);
+
+    (allEvents[dayStr] || []).slice(0, 3).forEach(function(ev) {
+      const color   = ev.color;
+      const evEl    = document.createElement('div');
+      evEl.className = 'cal-event';
+      evEl.style.background   = colorToLight(color);
+      evEl.style.color        = color;
+      evEl.style.borderLeft   = '2px solid ' + color;
+
+      let label = ev.title;
+      if (ev.time) label = ev.time + ' ' + label;
+      evEl.textContent = label;
+      cell.appendChild(evEl);
     });
+
     calEl.appendChild(cell);
   }
 }
@@ -163,24 +236,20 @@ function changeMonth(delta) {
   renderCalendar(currentCalYear, currentCalMonth);
 }
 
-// Swipe táctil
-var touchStartX = 0;
-function initSwipe() {
+function initCalSwipe() {
   const wrapper = document.getElementById('calendar-wrapper');
+  let startX = 0;
   wrapper.addEventListener('touchstart', function(e) {
-    touchStartX = e.changedTouches[0].screenX;
+    startX = e.changedTouches[0].screenX;
   }, { passive: true });
   wrapper.addEventListener('touchend', function(e) {
-    const diff = touchStartX - e.changedTouches[0].screenX;
-    if (Math.abs(diff) > 50) {
-      changeMonth(diff > 0 ? 1 : -1);
-    }
+    const diff = startX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 50) changeMonth(diff > 0 ? 1 : -1);
   }, { passive: true });
 }
 
 async function loadCalendar() {
-  // Cargamos 3 meses para tener margen al deslizar
-  const now = new Date();
+  const now   = new Date();
   const start = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
   const end   = new Date(now.getFullYear(), now.getMonth() + 3, 0, 23, 59).toISOString();
 
@@ -200,11 +269,23 @@ async function loadCalendar() {
     events.forEach(function(ev) {
       const dayStr = (ev.start.dateTime || ev.start.date).substring(0, 10);
       if (!allEvents[dayStr]) allEvents[dayStr] = [];
-      allEvents[dayStr].push(ev.summary || 'Evento');
+
+      // Hora del evento
+      let time = null;
+      if (ev.start.dateTime) {
+        const d = new Date(ev.start.dateTime);
+        time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      }
+
+      allEvents[dayStr].push({
+        title: ev.summary || 'Evento',
+        color: getEventColor(ev),
+        time:  time
+      });
     });
 
     renderCalendar(currentCalYear, currentCalMonth);
-    initSwipe();
+    initCalSwipe();
 
   } catch(e) {
     console.error('Error calendario:', e);
@@ -216,5 +297,6 @@ async function loadCalendar() {
 // --- INICIAR ---
 loadWeather();
 loadCalendar();
-setInterval(loadWeather,   15 * 60 * 1000);
-setInterval(loadCalendar,  30 * 60 * 1000);
+initWeekSwipe();
+setInterval(loadWeather,  15 * 60 * 1000);
+setInterval(loadCalendar, 30 * 60 * 1000);
