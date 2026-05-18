@@ -9,56 +9,107 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
 
-    <header class="top-bar">
-      <div class="datetime">
-        <div id="clock" class="clock">--:--</div>
-        <div id="date" class="date">-- de --, ----</div>
-      </div>
-      <div class="current-weather" id="current-weather">
-        <span id="w-icon" class="w-icon">⏳</span>
-        <span id="w-temp" class="w-temp">--°</span>
-        <div class="w-right">
-          <span id="w-desc" class="w-desc">Cargando...</span>
-          <span class="w-location">📍 Pozuelo de Alarcón</span>
+  <!-- ===================== DASHBOARD ===================== -->
+  <div id="view-dashboard" class="view active">
+    <div class="container">
+
+      <header class="top-bar">
+        <div class="datetime">
+          <div id="clock" class="clock">--:--</div>
+          <div id="date" class="date">-- de --, ----</div>
         </div>
-      </div>
-    </header>
-
-    <section class="section">
-      <h2 class="section-title">Hoy por horas</h2>
-      <div id="hourly" class="hourly-row">
-        <div class="loading">Cargando clima...</div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="week-nav">
-        <h2 class="section-title" style="margin-bottom:0">Próximos 7 días</h2>
-        <span class="swipe-hint">desliza ›</span>
-      </div>
-      <div id="weekly-wrapper">
-        <div id="weekly" class="weekly-row">
-          <div class="loading">Cargando...</div>
+        <div class="current-weather">
+          <span id="w-icon" class="w-icon">⏳</span>
+          <span id="w-temp" class="w-temp">--°</span>
+          <div class="w-right">
+            <span id="w-desc" class="w-desc">Cargando...</span>
+            <span class="w-location">📍 Pozuelo de Alarcón</span>
+          </div>
         </div>
-      </div>
-    </section>
+      </header>
 
-    <section class="section">
-      <div class="cal-nav">
-        <button class="cal-btn" onclick="changeMonth(-1)">&#8592;</button>
-        <h2 id="cal-month-label" class="cal-month-label">Este mes</h2>
-        <button class="cal-btn" onclick="changeMonth(1)">&#8594;</button>
-      </div>
-      <div id="calendar-wrapper">
-        <div id="calendar" class="calendar-grid">
-          <div class="loading">Cargando eventos...</div>
+      <section class="section">
+        <h2 class="section-title">Hoy por horas</h2>
+        <div id="hourly" class="hourly-row">
+          <div class="loading">Cargando clima...</div>
         </div>
-      </div>
-    </section>
+      </section>
 
+      <section class="section">
+        <div class="week-nav">
+          <h2 class="section-title" style="margin-bottom:0">Próximos días</h2>
+          <span class="swipe-hint">desliza ›</span>
+        </div>
+        <div id="weekly-wrapper">
+          <div id="weekly" class="weekly-row">
+            <div class="loading">Cargando...</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="cal-nav">
+          <button class="cal-btn" onclick="changeMonth(-1)">&#8592;</button>
+          <h2 id="cal-month-label" class="cal-month-label">Este mes</h2>
+          <button class="cal-btn" onclick="changeMonth(1)">&#8594;</button>
+        </div>
+        <div id="calendar-wrapper">
+          <div id="calendar" class="calendar-grid">
+            <div class="loading">Cargando eventos...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BOTÓN RECETAS -->
+      <div class="recipes-btn-wrap">
+        <button class="recipes-main-btn" onclick="showView('view-recipes')">
+          🍳 Mis recetas
+        </button>
+      </div>
+
+    </div>
   </div>
+
+  <!-- ===================== LISTADO RECETAS ===================== -->
+  <div id="view-recipes" class="view">
+    <div class="container">
+      <div class="view-header">
+        <button class="back-btn" onclick="showView('view-dashboard')">&#8592; Volver</button>
+        <h1 class="view-title">Mis recetas</h1>
+      </div>
+
+      <!-- Filtro por categoría -->
+      <div id="cat-filters" class="cat-filters"></div>
+
+      <!-- Lista -->
+      <div id="recipes-list" class="recipes-list">
+        <div class="loading">Cargando recetas...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== DETALLE RECETA ===================== -->
+  <div id="view-recipe-detail" class="view">
+    <div class="container">
+      <div class="view-header">
+        <button class="back-btn" onclick="showView('view-recipes')">&#8592; Recetas</button>
+        <h1 id="detail-title" class="view-title"></h1>
+      </div>
+      <div class="detail-meta" id="detail-meta"></div>
+      <div class="detail-body">
+        <div class="detail-col">
+          <h3 class="detail-section-title">Ingredientes</h3>
+          <ul id="detail-ingredients" class="ingredient-list"></ul>
+        </div>
+        <div class="detail-col">
+          <h3 class="detail-section-title">Preparación</h3>
+          <ol id="detail-steps" class="steps-list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
