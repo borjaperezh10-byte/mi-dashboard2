@@ -256,8 +256,9 @@ body {
   text-align: center;
 }
 .recipes-main-btn {
-  background: #1a1a1a;
-  color: #ffffff;
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #e0e0e0;
   border: none;
   border-radius: 16px;
   padding: 18px 48px;
